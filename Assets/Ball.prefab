@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 1700505013256411144}
   - component: {fileID: 1700505013256411188}
   - component: {fileID: 1700505013256411189}
+  - component: {fileID: 6812695784468298295}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -180,6 +181,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 1700505013256411189}
+  - {fileID: 6812695784468298295}
   SimulationBehaviours: []
 --- !u!114 &1700505013256411189
 MonoBehaviour:
@@ -209,3 +211,16 @@ MonoBehaviour:
     RotTeleportRadians: 1.5
   UseLegacySharedModeInterpolation: 0
   TargetInterpolationDelay: 0.03
+--- !u!114 &6812695784468298295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700505013256411146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50d172f9bcd55c54ea122c642f593f27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0

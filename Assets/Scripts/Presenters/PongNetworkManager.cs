@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Fusion;
@@ -13,27 +14,42 @@ namespace PhotoPong.Managers
     public class PongNetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         [HideInInspector] public NetworkRunner runner;
-        [SerializeField] private NetworkPrefabRef playerPrefab;
-        
-        private GameWorldPresenter _gameWorldPresenter;
+        [SerializeField] private NetworkBallPresenter networkBallPresenter;
+        [SerializeField] private NetworkPlayerPresenter playerPresenterPrefab;
+        [SerializeField] private NetworkPadPresenter leftPad;
+        [SerializeField] private NetworkPadPresenter rightPad;
 
-        private readonly Dictionary<PlayerRef, NetworkObject> _spawnedCharacters =
-            new Dictionary<PlayerRef, NetworkObject>();
+        //private GameWorldPresenter _gameWorldPresenter;
+        private INetworkSceneManager _sceneManager;
+        private readonly Dictionary<PlayerRef, NetworkPlayerPresenter> _spawnedPlayers = new();
      
-        public async void StartGame(GameMode mode)
+        public async void ConnectToGame(GameMode mode)
         {
-            _gameWorldPresenter = FindObjectOfType<GameWorldPresenter>();
+            //_gameWorldPresenter = FindObjectOfType<GameWorldPresenter>();
             runner = gameObject.AddComponent<NetworkRunner>();
             runner.ProvideInput = true;
-            
+            _sceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>();
             var startGameResult = await runner.StartGame(new StartGameArgs()
             {
                 GameMode = mode,
-                SessionName = "TestRoom",
+                SessionName = "PhotoPong_01",
                 Scene = SceneManager.GetActiveScene().buildIndex,
-                SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
+                SceneManager = _sceneManager,
+                PlayerCount = 2
             });
             Debug.Log($"game started: {startGameResult.Ok}");
+        }
+
+        private IEnumerator StartGame()
+        {
+            yield return new WaitForEndOfFrame();
+            Debug.Log($"players are ready. the game is about to begin.");
+            //show a timer
+            networkBallPresenter.OnGameStarted();
+            foreach (var (_, networkPlayerPresenter) in _spawnedPlayers)
+            {
+                networkPlayerPresenter.OnGameStarted();
+            }
         }
         
         //
@@ -41,28 +57,28 @@ namespace PhotoPong.Managers
         {
             var playerCount = runner.ActivePlayers.Count(); 
             Debug.Log($"Player joined: {playerRef.PlayerId} | player count: {playerCount}");
-            if (playerCount > 2)
-            {
-                Debug.LogError($"Room is full... dont let anybody in!");
-                return;
-            }
-
+            
+            var padToAssign = playerCount == 1 ? leftPad : rightPad;
             if (runner.IsServer)
             {
-                var pos = playerCount == 1
-                    ? _gameWorldPresenter.leftPlayerPosition.position
-                    : _gameWorldPresenter.rightPlayerPosition.position;
+                var networkObject = runner.Spawn(
+                    prefab: playerPresenterPrefab,
+                    inputAuthority: playerRef
+                ).Setup(padToAssign,transform);
+                _spawnedPlayers.Add(playerRef, networkObject);
+            }
 
-                var networkObject = runner.Spawn(playerPrefab, pos, Quaternion.identity, playerRef);
-                _spawnedCharacters.Add(playerRef, networkObject);
+            if (playerCount == 2)
+            {
+                StartCoroutine(StartGame());
             }
         }
 
         public void OnPlayerLeft(NetworkRunner runner, PlayerRef playerRef)
         {
             Debug.Log($"Player left: {playerRef.PlayerId}");
-            runner.Despawn(_spawnedCharacters[playerRef]);
-            _spawnedCharacters.Remove(playerRef);
+            runner.Despawn(_spawnedPlayers[playerRef].Object);
+            _spawnedPlayers.Remove(playerRef);
         }
 
         public void OnInput(NetworkRunner runner, NetworkInput input)

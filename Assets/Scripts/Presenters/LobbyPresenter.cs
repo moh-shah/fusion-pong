@@ -19,11 +19,11 @@ namespace PhotoPong.Presenters
             {
                 if (GUI.Button(new Rect(0,0,200,40), "Host"))
                 {
-                    _pongNetworkManager.StartGame(GameMode.Host);
+                    _pongNetworkManager.ConnectToGame(GameMode.Host);
                 }
                 if (GUI.Button(new Rect(0,40,200,40), "Join"))
                 {
-                    _pongNetworkManager.StartGame(GameMode.Client);
+                    _pongNetworkManager.ConnectToGame(GameMode.Client);
                 }
             }
         }
