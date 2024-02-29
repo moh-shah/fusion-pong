@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using Fusion;
 using PhotoPong.Managers;
@@ -20,31 +21,45 @@ namespace PhotoPong.Presenters
         [SerializeField] private GameObject coreUiParent;
         [SerializeField] private TextMeshProUGUI leftPlayerScore;
         [SerializeField] private TextMeshProUGUI rightPlayerScore;
-
-        private PongNetworkManager _pongNetworkManager;
+        
 
         private void Awake()
         {
-            _pongNetworkManager = FindObjectOfType<PongNetworkManager>();
-            _pongNetworkManager.OnGameStarting += delegate(int i)
+            leftPlayerScore.text = rightPlayerScore.text = "0";
+  
+            PongNetworkManager.Instance.OnGameStarting += delegate(int i)
             {
                 startGameCounter.gameObject.SetActive(true);
                 loadingImage.gameObject.SetActive(false);
                 startGameCounter.text = $"{i}";
             };
 
-            _pongNetworkManager.OnGameStarted += () =>
+            PongNetworkManager.Instance.OnGameStarted += () =>
             {
                 startGameCounter.gameObject.SetActive(false);
                 lobbyUiParent.SetActive(false);
                 coreUiParent.SetActive(true);
+            };
+            
+            PongNetworkManager.Instance.OnPlayerScoreChangedEvt += delegate(NetworkPlayerPresenter p)
+            {
+                switch (p.side)
+                {
+                    case WorldDirection.Left:
+                        leftPlayerScore.text = p.Score.ToString();
+                        break;
+                    
+                    case WorldDirection.Right:
+                        rightPlayerScore.text = p.Score.ToString();
+                        break;
+                }
             };
         }
         
         public void OnStartGameClicked(bool host)
         {
             var mode = host ? GameMode.Host : GameMode.Client;
-            _pongNetworkManager.ConnectToGame(mode);
+            PongNetworkManager.Instance.ConnectToGame(mode);
             startHostBtn.SetActive(false);
             joinGameBtn.SetActive(false);
             loadingImage.SetActive(true);

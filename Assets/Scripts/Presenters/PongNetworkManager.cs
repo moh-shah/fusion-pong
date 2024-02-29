@@ -11,22 +11,32 @@ using UnityEngine.SceneManagement;
 
 namespace PhotoPong.Managers
 {
-    public class PongNetworkManager : MonoBehaviour, INetworkRunnerCallbacks
+    //bad naming
+    public class PongNetworkManager : NetworkBehaviour, INetworkRunnerCallbacks
     {
+        public static PongNetworkManager Instance { get; private set; }
         public event Action<int> OnGameStarting = delegate {  };
         public event Action OnGameStarted = delegate {  };
+        public event Action<NetworkPlayerPresenter> OnPlayerScoreChangedEvt = delegate {  };
         
         [SerializeField] private NetworkPlayerPresenter playerPresenterPrefab;
         [SerializeField] private NetworkBallPresenter networkBallPresenter;
         [SerializeField] private NetworkPadPresenter leftPad;
         [SerializeField] private NetworkPadPresenter rightPad;
-
-        //should I have a session controller?
         
         private NetworkRunner _runner;
         private INetworkSceneManager _sceneManager;
         private readonly Dictionary<PlayerRef, NetworkPlayerPresenter> _spawnedPlayers = new();
+        private NetworkPlayerPresenter _lastScoredPlayer;
 
+        private void Awake()
+        {
+            if (Instance != null)
+                Destroy(gameObject);
+            else
+                Instance = this;
+        }
+        
         public async void ConnectToGame(GameMode mode)
         {
             _runner = gameObject.AddComponent<NetworkRunner>();
@@ -42,9 +52,27 @@ namespace PhotoPong.Managers
             Debug.Log($"game started: {startGameResult.Ok}");
         }
 
+        public void PlayerScoreChanged(NetworkPlayerPresenter playerPresenter)
+        {
+            OnPlayerScoreChangedEvt.Invoke(playerPresenter);
+        }
+        
+        public void GoalScoredOnSide(WorldDirection direction)
+        {
+            if (!_runner.IsServer)
+                return;
+            
+            _lastScoredPlayer = _spawnedPlayers.First(p => p.Value.side == direction).Value;
+            if (direction == WorldDirection.Right)
+                _lastScoredPlayer.Score++;
+            else
+                _lastScoredPlayer.Score++;
+        }
+        
         private IEnumerator StartGame()
         {
             yield return new WaitForEndOfFrame();
+          
             Debug.Log($"players are ready. the game is about to begin.");
             for (var i = 3; i > 0; i--)
             {
@@ -69,12 +97,13 @@ namespace PhotoPong.Managers
             Debug.Log($"Player joined: {playerRef.PlayerId} | player count: {playerCount}");
             
             var padToAssign = playerCount == 1 ? leftPad : rightPad;
+            var dir = playerCount == 1 ? WorldDirection.Left : WorldDirection.Right;
             if (runner.IsServer)
             {
                 var networkObject = runner.Spawn(
                     prefab: playerPresenterPrefab,
                     inputAuthority: playerRef
-                ).Setup(padToAssign,transform);
+                ).Setup(padToAssign, transform, dir);
                 _spawnedPlayers.Add(playerRef, networkObject);
             }
 
