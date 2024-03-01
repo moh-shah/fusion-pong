@@ -22,8 +22,10 @@ namespace PhotoPong.Presenters
             
             Used = true;
             OnActivated();
+            Debug.Log($"powerup {GetType().Name} has been activated");
             yield return new WaitForSeconds(ActiveTime());
             OnDeActivated();
+            Debug.Log($"powerup {GetType().Name} has been de-activated");
         }
 
         public abstract bool CanActive(PlayerInput input);
