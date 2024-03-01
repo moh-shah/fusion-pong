@@ -6,4 +6,4 @@ How to run the game:
 - On one instance, press "Host a Game" button.
 - On the other one, press "Join a Game".
 
-Although I tried to write a readable code-base, it's a fast-written prototype. So do not expect a super well-structured arcitecture!
+It's a fast-written prototype. Although I tried not to write junk code, do not expect a super well-structured code architecture!
