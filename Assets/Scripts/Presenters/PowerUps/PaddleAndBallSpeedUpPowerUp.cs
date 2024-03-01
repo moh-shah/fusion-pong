@@ -24,9 +24,7 @@ namespace PhotoPong.Presenters
                 ball.forceAmplifier *= 1.5f;
             }
 
-            var paddles = Object.FindObjectsOfType<PaddlePresenter>().ToList();
-            foreach (var paddle in paddles)
-                paddle.externalSpeedModifier = 1.5f;
+            ownerPaddle.externalSpeedModifier = 1.5f;
         }
 
         protected override void OnDeActivated()
@@ -38,9 +36,7 @@ namespace PhotoPong.Presenters
                 ball.forceAmplifier = _ballInitialForceAmplifier;
             }
             
-            var paddles = Object.FindObjectsOfType<PaddlePresenter>().ToList();
-            foreach (var paddle in paddles)
-                paddle.externalSpeedModifier = 1;
+            ownerPaddle.externalSpeedModifier = 1;
         }
     }
 }
