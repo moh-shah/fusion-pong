@@ -31,12 +31,4 @@ namespace PhotoPong.Presenters
         protected abstract void OnActivated();
         protected abstract void OnDeActivated();
     }
-    
-    //pad size
-    //multiple balls
-    //ball speed
-    public class FreeMovementPowerUp
-    {
-    }
-
 }

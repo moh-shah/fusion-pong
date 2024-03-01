@@ -5,8 +5,10 @@ namespace PhotoPong.Presenters
 {
     public class BiggerPaddlePowerUp : PowerUp
     {
-        protected override float ActiveTime() => 5;
         private float _initScale;
+        
+        public override bool CanActive(PlayerInput input) => input.qKey;
+        protected override float ActiveTime() => 5;
         protected override void OnActivated()
         {
             _initScale = ownerPaddle.rb.transform.localScale.y;
@@ -16,11 +18,6 @@ namespace PhotoPong.Presenters
         protected override void OnDeActivated()
         {
             ownerPaddle.rb.transform.DOScaleY(_initScale, .5f);
-        }
-
-        public override bool CanActive(PlayerInput input)
-        {
-            return input.qKey;
         }
     }
 }

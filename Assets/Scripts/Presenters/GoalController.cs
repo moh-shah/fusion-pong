@@ -10,9 +10,9 @@ namespace PhotoPong.Presenters
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.TryGetComponent(out BallPresenter _))
+            if (other.TryGetComponent(out BallPresenter ball))
             {
-                GameManager.Instance.Session.GoalDetectedOnSide(side);
+                GameManager.Instance.Session.BallCollidesWithGoalDetectorOnSide(side, ball);
             }
         }
     }

@@ -14,10 +14,11 @@ namespace PhotoPong.Managers
     public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     {
         public static GameManager Instance { get; private set; }
-        public GameSessionController Session { get; set; }
+        public SessionController Session { get; set; }
         
+        public BallPresenter ballPrefab;
         [SerializeField] private PlayerPresenter playerPresenterPrefab;
-        [SerializeField] private GameSessionController sessionControllerPrefab;
+        [SerializeField] private SessionController sessionControllerPrefab;
         
         private NetworkRunner _runner;
         private NetworkSceneManagerBase _sceneManager;

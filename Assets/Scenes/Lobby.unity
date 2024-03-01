@@ -647,13 +647,19 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Move ur paddle up or down with arrow keys.
+  m_text: 'Move ur paddle up and down with arrow keys.
 
 
     Power-Ups:
 
-    Use "Q"
-    to make ur paddle bigger (one time usage).
+    Press
+    "Q" to make ur paddle bigger (one time usage).
+
+    Press "W" to spawn 2 extra
+    balls, heading towards the opponent (one time usage).
+
+    Press "E" spped-up
+    your pad and all the balls on the map (one time usage).
 
 '
   m_isRightToLeft: 0
@@ -839,6 +845,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
+  ballPrefab: {fileID: 6812695784468298295, guid: 700b699e0189c40469f1b1c093e7aae7, type: 3}
   playerPresenterPrefab: {fileID: 2609533420046158514, guid: 9886836b1627072479ceba8b40546612, type: 3}
   sessionControllerPrefab: {fileID: 3645965170618897200, guid: e87d20a2a5739a24a8a2ab49b36f8b20, type: 3}
 --- !u!4 &1010683699

@@ -51,8 +51,14 @@ namespace PhotoPong.Presenters
             {
                 corePanel.SetActive(false);
                 resultPanel.SetActive(true);
-                matchResult.text = $"Winner: {results.winnerSide} ({results.winnerScore} - {results.loserScore})\n" +
-                                   $"in: {results.durationInSeconds} seconds";
+                if (results.draw)
+                    matchResult.text =
+                        $"Draw ({results.winnerScore} - {results.loserScore})\n" +
+                        $"in: {results.durationInSeconds} seconds";
+                else
+                    matchResult.text =
+                        $"Winner: {results.winnerSide} ({results.winnerScore} - {results.loserScore})\n" +
+                        $"in: {results.durationInSeconds} seconds";
             };
         }
 

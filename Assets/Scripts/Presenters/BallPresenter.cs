@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using PhotoPong.Managers;
 using PhotoPong.Models;
 using UnityEngine;
@@ -9,20 +8,23 @@ namespace PhotoPong.Presenters
 {
     public class BallPresenter : NetworkBehaviour
     {
-        private Rigidbody2D _rb;
-        private int _forceAmplifier = 300;
+        [HideInInspector] public float forceAmplifier = 300;
+        public Rigidbody2D rb;
+        public bool destroyWhenCollideWithGoal;
+        
         private System.Random _rnd;
+        
         public override void Spawned()
         {
-            _rb = GetComponent<Rigidbody2D>();
-            _rb.drag = 0;
+            rb = GetComponent<Rigidbody2D>();
+            rb.drag = 0;
             Debug.Log($"ball spawned with state authority? {Object.HasStateAuthority}");
             if (Object.HasStateAuthority)
                 _rnd = new System.Random(Object.Runner.TicksExecuted);
             
             GameManager.Instance.Session.OnGameSessionStarted += delegate
             {
-                SubscribeToSessionEvents();
+                //SubscribeToSessionEvents();
                 AddRandomForce(WorldDirection.Right);
             };
             
@@ -31,25 +33,8 @@ namespace PhotoPong.Presenters
                 gameObject.SetActive(false);
             };
         }
-
-        private void SubscribeToSessionEvents()
-        {
-            GameManager.Instance.Session.OnPlayerScoreChangedEvt += delegate(PlayerPresenter p)
-            {
-                StartCoroutine(ResetPosition(p.Side));
-            };
-        }
-
-        private IEnumerator ResetPosition(WorldDirection requester)
-        {
-            transform.position = Vector3.zero;
-            _rb.velocity = Vector2.zero;
-            yield return new WaitForSeconds(2);
-            AddRandomForce(requester.Opposite());
-        }
         
-
-        private void AddRandomForce(WorldDirection direction)
+        public void AddRandomForce(WorldDirection direction)
         {
             Debug.Log($"ball wants random force. state authority? {Object.HasStateAuthority}");
 
@@ -62,7 +47,28 @@ namespace PhotoPong.Presenters
                 force.y = direction == WorldDirection.Right ? .1f : -.1f;
             
             Debug.Log($"ball wants random force. force {force}");
-            _rb.AddForce(force * _forceAmplifier, ForceMode2D.Force);
+            rb.AddForce(force * forceAmplifier, ForceMode2D.Force);
+        }
+
+        /*private void SubscribeToSessionEvents()
+        {
+            //
+            GameManager.Instance.Session.OnPlayerScoreChangedEvt += delegate(PlayerPresenter p)
+            {
+            };
+        }*/
+
+        public void ResetPositionAndHeadTowards(WorldDirection direction)
+        {
+            StartCoroutine(ResetPosition(direction));
+        }
+
+        private IEnumerator ResetPosition(WorldDirection requester)
+        {
+            transform.position = Vector3.zero;
+            rb.velocity = Vector2.zero;
+            yield return new WaitForSeconds(2);
+            AddRandomForce(requester.Opposite());
         }
     }
 }

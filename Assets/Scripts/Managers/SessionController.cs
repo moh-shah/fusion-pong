@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace PhotoPong.Managers
 {
-    public class GameSessionController : NetworkBehaviour
+    public class SessionController : NetworkBehaviour
     {
         [Networked(OnChanged = nameof(OnTimerElapsed))] 
         public int SessionTimer { get; set; }
@@ -19,6 +19,7 @@ namespace PhotoPong.Managers
         public event Action<PlayerPresenter> OnPlayerScoreChangedEvt = delegate {  };
         
         private const int MaxScore = 5;
+        private const int SessionMaxTimeInSeconds = 60;
 
         public override void Spawned()
         {
@@ -33,14 +34,19 @@ namespace PhotoPong.Managers
                 StopCoroutine(TimerCountdown());
         }
 
-        public void GoalDetectedOnSide(WorldDirection direction)
+        public void BallCollidesWithGoalDetectorOnSide(WorldDirection direction, BallPresenter ball)
         {
-            if (Object==null || !Object.HasStateAuthority)
+            if (Object == null || !Object.HasStateAuthority)
                 return;
 
             var scoredSide = direction.Opposite();
             var scoredPlayer = GameManager.Instance.GetPlayerBySide(scoredSide);
             scoredPlayer.Score++;
+            if (ball.destroyWhenCollideWithGoal)
+                Runner.Despawn(ball.Object);
+            else
+                ball.ResetPositionAndHeadTowards(direction.Opposite());
+            
             Debug.Log($"goal detected on side: {direction} | increasing player {scoredPlayer.Side} score");
         }
         
@@ -51,16 +57,15 @@ namespace PhotoPong.Managers
             {
                 var results = new MatchResults()
                 {
+                    draw = false,
                     winnerSide = playerPresenter.Side,
                     winnerScore = playerPresenter.Score,
                     loserScore = GameManager.Instance.GetPlayerBySide(playerPresenter.Side.Opposite()).Score,
-                    durationInSeconds = SessionTimer
                 };
-    
-                EndGameSession_Rpc(results);
+                TryEndSession(results);
             }
         }
-        
+
         public IEnumerator StartGameSession()
         {
             yield return new WaitForEndOfFrame();
@@ -74,7 +79,61 @@ namespace PhotoPong.Managers
 
             StartGameSession_RPC();
         }
-
+        
+        private IEnumerator TimerCountdown()
+        {
+            var wait = new WaitForSeconds(1);
+            SessionTimer = SessionMaxTimeInSeconds;
+            while (true)
+            {
+                yield return wait;
+                SessionTimer--;
+                if (SessionTimer <= 0)
+                {
+                    var leftSidePlayer = GameManager.Instance.GetPlayerBySide(WorldDirection.Left);
+                    var rightSidePlayer = GameManager.Instance.GetPlayerBySide(WorldDirection.Right);
+                    var results = new MatchResults();
+                    if (leftSidePlayer.Score == rightSidePlayer.Score)
+                    {
+                        results.draw = true;
+                        results.winnerScore = leftSidePlayer.Score;
+                        results.loserScore = rightSidePlayer.Score;
+                    }
+                    else
+                    {
+                        if (leftSidePlayer.Score > rightSidePlayer.Score)
+                        {
+                            results.winnerSide = WorldDirection.Left;
+                            results.winnerScore = leftSidePlayer.Score;
+                            results.loserScore = rightSidePlayer.Score;
+                        }
+                        else
+                        {
+                            results.winnerSide = WorldDirection.Right;
+                            results.winnerScore = rightSidePlayer.Score;
+                            results.loserScore = leftSidePlayer.Score;
+                        }
+                    }
+                    TryEndSession(results);
+                    break;
+                }
+            }
+        }
+        
+        private void TryEndSession(MatchResults results)
+        {
+            if (Object.HasStateAuthority)
+            {
+                results.durationInSeconds = SessionMaxTimeInSeconds - SessionTimer;
+                EndGameSession_Rpc(results);
+            }
+        }
+        
+        private static void OnTimerElapsed(Changed<SessionController> changed)
+        {
+            GameManager.Instance.Session.OnTimerElapsedEvt.Invoke(changed.Behaviour.SessionTimer);
+        }
+        
         #region RPCs
         
         [Rpc(sources: RpcSources.StateAuthority,targets: RpcTargets.All)]
@@ -100,20 +159,5 @@ namespace PhotoPong.Managers
         }
 
         #endregion
-        
-        private IEnumerator TimerCountdown()
-        {
-            var wait = new WaitForSeconds(1);
-            while (true)
-            {
-                yield return wait;
-                SessionTimer++;
-            }
-        }
-        
-        private static void OnTimerElapsed(Changed<GameSessionController> changed)
-        {
-            GameManager.Instance.Session.OnTimerElapsedEvt.Invoke(changed.Behaviour.SessionTimer);
-        }
     }
 }
