@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Fusion;
 using PhotoPong.Managers;
 using PhotoPong.Models;
@@ -34,14 +35,15 @@ namespace PhotoPong.Presenters
         {
             GameManager.Instance.Session.OnPlayerScoreChangedEvt += delegate(PlayerPresenter p)
             {
-                ResetPosition(p.side);
+                StartCoroutine(ResetPosition(p.Side));
             };
         }
 
-        private void ResetPosition(WorldDirection requester)
+        private IEnumerator ResetPosition(WorldDirection requester)
         {
             transform.position = Vector3.zero;
             _rb.velocity = Vector2.zero;
+            yield return new WaitForSeconds(2);
             var force = RandomForce(requester.Opposite());
             _rb.AddForce(force, ForceMode2D.Force);
         }

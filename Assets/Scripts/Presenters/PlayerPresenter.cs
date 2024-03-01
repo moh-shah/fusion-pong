@@ -23,49 +23,22 @@ namespace PhotoPong.Presenters
 
     //pad size
     //multiple balls
-    //
-    public class ShieldPowerUp : PowerUp
-    {
-        protected override void OnActivated()
-        {
-            //GameManager.Instance.rightShield.SetActive(true);
-        }
-
-        protected override float ActiveTime()
-        {
-            return 10f;
-        }
-
-        protected override void OnDeActivated()
-        {
-            //GameManager.Instance.rightShield.SetActive(false);
-        }
-    }
-
-    //applies a gravity in a specific direction
-    public class WindPowerUp
-    {
-    }
-
+    //ball speed
     public class FreeMovementPowerUp
     {
     }
 
     public class PlayerPresenter : NetworkBehaviour
     {
-        [Networked(OnChanged = nameof(OnScoreChanged))]
-        public int Score { get; set; } = 0;
-
-        [Networked]
-        public bool PlayerReady { get; private set; }
-        
-        [HideInInspector] public WorldDirection side;
+        [Networked(OnChanged = nameof(OnScoreChanged))] public int Score { get; set; } = 0;
+        [Networked] public bool PlayerReady { get; private set; }
+        [Networked] public WorldDirection Side { get; private set; }
 
         private PaddlePresenter _playerPad;
 
         public void Setup(Transform parent, WorldDirection side)
         {
-            this.side = side;
+            this.Side = side;
             transform.SetParent(parent);
             GameManager.Instance.SetPlayer(this);
             GameManager.Instance.Session.OnGameSessionStarted += delegate
@@ -81,6 +54,7 @@ namespace PhotoPong.Presenters
         
         public static void OnScoreChanged(Changed<PlayerPresenter> changed)
         {
+            Debug.Log($"{changed.Behaviour.Side} player score changed.");
             GameManager.Instance.Session.PlayerScoreChanged(changed.Behaviour);
         }
     }

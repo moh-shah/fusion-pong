@@ -17,9 +17,8 @@ namespace PhotoPong.Managers
         public event Action<MatchResults> OnGameSessionEnded = delegate {  };
         public event Action<int> OnTimerElapsedEvt = delegate {  }; 
         public event Action<PlayerPresenter> OnPlayerScoreChangedEvt = delegate {  };
-        private PlayerPresenter _lastScoredPlayer;
-
-        private const int MaxScore = 2;
+        
+        private const int MaxScore = 5;
 
         public override void Spawned()
         {
@@ -40,8 +39,9 @@ namespace PhotoPong.Managers
                 return;
 
             var scoredSide = direction.Opposite();
-            _lastScoredPlayer = GameManager.Instance.GetPlayerBySide(scoredSide);
-            _lastScoredPlayer.Score++;
+            var scoredPlayer = GameManager.Instance.GetPlayerBySide(scoredSide);
+            scoredPlayer.Score++;
+            Debug.Log($"goal detected on side: {direction} | increasing player {scoredPlayer.Side} score");
         }
         
         public void PlayerScoreChanged(PlayerPresenter playerPresenter)
@@ -51,9 +51,9 @@ namespace PhotoPong.Managers
             {
                 var results = new MatchResults()
                 {
-                    winnerSide = playerPresenter.side,
+                    winnerSide = playerPresenter.Side,
                     winnerScore = playerPresenter.Score,
-                    loserScore = GameManager.Instance.GetPlayerBySide(playerPresenter.side.Opposite()).Score
+                    loserScore = GameManager.Instance.GetPlayerBySide(playerPresenter.Side.Opposite()).Score
                 };
                 GameManager.Instance.EndGameSession(results);
             }

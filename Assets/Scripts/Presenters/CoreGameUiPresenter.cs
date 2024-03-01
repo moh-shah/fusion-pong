@@ -33,7 +33,7 @@ namespace PhotoPong.Presenters
             counterPanel.SetActive(false);
             GameManager.Instance.Session.OnPlayerScoreChangedEvt += delegate(PlayerPresenter p)
             {
-                switch (p.side)
+                switch (p.Side)
                 {
                     case WorldDirection.Left:
                         leftPlayerScore.text = p.Score.ToString();

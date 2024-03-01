@@ -46,7 +46,7 @@ namespace PhotoPong.Managers
             _spawnedPlayers.Add(playerPresenter);
         }
 
-        public PlayerPresenter GetPlayerBySide(WorldDirection side) => _spawnedPlayers.First(p => p.side == side);
+        public PlayerPresenter GetPlayerBySide(WorldDirection side) => _spawnedPlayers.First(p => p.Side == side);
 
         public async void ConnectToGame(GameMode mode)
         {
@@ -139,10 +139,22 @@ namespace PhotoPong.Managers
 
         public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input){}
         public void OnConnectedToServer(NetworkRunner runner){}
-        public void OnDisconnectedFromServer(NetworkRunner runner){}
-        public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason){}
+
+        public void OnDisconnectedFromServer(NetworkRunner runner)
+        {
+            Debug.LogError("OnDisconnectedFromServer");
+        }
+
+        public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
+        {
+            Debug.LogError("OnShutdown");
+        }
         public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request,byte[] token){}
-        public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason){}
+
+        public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason)
+        {
+            Debug.LogError("OnConnectFailed");
+        }
         public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message){}
         public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList){}
         public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data){}
