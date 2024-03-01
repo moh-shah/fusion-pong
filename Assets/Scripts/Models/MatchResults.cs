@@ -1,5 +1,4 @@
 using Fusion;
-using PhotoPong.Managers;
 
 namespace PhotoPong.Models
 {
@@ -8,5 +7,6 @@ namespace PhotoPong.Models
         public WorldDirection winnerSide;
         public int winnerScore;
         public int loserScore;
+        public int durationInSeconds;
     }
 }

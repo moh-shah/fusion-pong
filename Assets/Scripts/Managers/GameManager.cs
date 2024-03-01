@@ -14,19 +14,13 @@ namespace PhotoPong.Managers
     public class GameManager : NetworkBehaviour, INetworkRunnerCallbacks
     {
         public static GameManager Instance { get; private set; }
-        
-        public GameSessionController Session
-        {
-            get;
-            set;
-        }
+        public GameSessionController Session { get; set; }
         
         [SerializeField] private PlayerPresenter playerPresenterPrefab;
         [SerializeField] private GameSessionController sessionControllerPrefab;
         
         private NetworkRunner _runner;
         private NetworkSceneManagerBase _sceneManager;
-       
         private List<PlayerPresenter> _spawnedPlayers = new();
         
         private void Awake()
@@ -38,14 +32,9 @@ namespace PhotoPong.Managers
             
             _sceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>();
             DontDestroyOnLoad(gameObject);
-
         }
 
-        public void SetPlayer(PlayerPresenter playerPresenter)
-        {
-            _spawnedPlayers.Add(playerPresenter);
-        }
-
+        public void SetPlayer(PlayerPresenter playerPresenter) => _spawnedPlayers.Add(playerPresenter);
         public PlayerPresenter GetPlayerBySide(WorldDirection side) => _spawnedPlayers.First(p => p.Side == side);
 
         public async void ConnectToGame(GameMode mode)
@@ -64,18 +53,22 @@ namespace PhotoPong.Managers
             Debug.Log($"start game result: {startGameResult.Ok}");
         }
         
-        public void EndGameSession(MatchResults result)
+        /*public void BackToLobby()
         {
-            Debug.Log("Game Ended");
+            Debug.Log("BackToLobby");
             if (_runner.IsServer)
             {
-                /*foreach (var player in _spawnedPlayers)
+                foreach (var player in _spawnedPlayers)
                     _runner.Despawn(player.Object);
 
-                _runner.Despawn(Session.Object);*/
-                Session.EndGameSession_Rpc(result);
+                _runner.Despawn(Session.Object);
+                Session = null;
+                _spawnedPlayers.Clear();
+                _runner.Shutdown();
             }
-        }
+
+            SceneManager.LoadScene("Lobby");
+        }*/
         
         //network runner callbacks
 #region Network Runner Callbacks
@@ -131,8 +124,11 @@ namespace PhotoPong.Managers
         {
             var newInput = new PlayerInput()
             {
-                up = Input.GetKey(KeyCode.UpArrow),
-                down = Input.GetKey(KeyCode.DownArrow),
+                upKey = Input.GetKey(KeyCode.UpArrow),
+                downKey = Input.GetKey(KeyCode.DownArrow),
+                qKey = Input.GetKey(KeyCode.Q),
+                wKey = Input.GetKey(KeyCode.W),
+                eKey = Input.GetKey(KeyCode.E),
             };
             input.Set(newInput);
         }

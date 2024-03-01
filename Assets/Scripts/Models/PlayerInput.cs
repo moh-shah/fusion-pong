@@ -4,7 +4,10 @@ namespace PhotoPong.Models
 {
     public struct PlayerInput : INetworkInput
     {
-        public bool up;
-        public bool down;
+        public bool upKey;
+        public bool downKey;
+        public bool qKey;
+        public bool wKey;
+        public bool eKey;
     }
 }

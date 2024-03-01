@@ -51,13 +51,14 @@ namespace PhotoPong.Presenters
             {
                 corePanel.SetActive(false);
                 resultPanel.SetActive(true);
-                matchResult.text = $"Winner: {results.winnerSide} ({results.winnerScore} - {results.loserScore})";
+                matchResult.text = $"Winner: {results.winnerSide} ({results.winnerScore} - {results.loserScore})\n" +
+                                   $"in: {results.durationInSeconds} seconds";
             };
         }
 
-        public void OnGoToLobbyClicked()
+        /*public void OnGoToLobbyClicked()
         {
-            
-        }
+            GameManager.Instance.BackToLobby();
+        }*/
     }
 }

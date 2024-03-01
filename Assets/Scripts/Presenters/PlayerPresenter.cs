@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Linq;
 using Fusion;
 using PhotoPong.Managers;
@@ -7,27 +6,6 @@ using UnityEngine;
 
 namespace PhotoPong.Presenters
 {
-    public abstract class PowerUp
-    {
-        public IEnumerator Activate()
-        {
-            OnActivated();
-            yield return new WaitForSeconds(ActiveTime());
-            OnDeActivated();
-        }
-
-        protected abstract void OnActivated();
-        protected abstract float ActiveTime();
-        protected abstract void OnDeActivated();
-    }
-
-    //pad size
-    //multiple balls
-    //ball speed
-    public class FreeMovementPowerUp
-    {
-    }
-
     public class PlayerPresenter : NetworkBehaviour
     {
         [Networked(OnChanged = nameof(OnScoreChanged))] public int Score { get; set; } = 0;
@@ -35,10 +13,9 @@ namespace PhotoPong.Presenters
         [Networked] public WorldDirection Side { get; private set; }
 
         private PaddlePresenter _playerPad;
-
         public void Setup(Transform parent, WorldDirection side)
         {
-            this.Side = side;
+            Side = side;
             transform.SetParent(parent);
             GameManager.Instance.SetPlayer(this);
             GameManager.Instance.Session.OnGameSessionStarted += delegate
@@ -48,9 +25,9 @@ namespace PhotoPong.Presenters
             };
 
             GameManager.Instance.Session.OnGameSessionEnded += delegate { _playerPad.Object.RemoveInputAuthority(); };
+
             PlayerReady = true;
         }
-        
         
         public static void OnScoreChanged(Changed<PlayerPresenter> changed)
         {

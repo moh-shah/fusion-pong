@@ -53,9 +53,11 @@ namespace PhotoPong.Managers
                 {
                     winnerSide = playerPresenter.Side,
                     winnerScore = playerPresenter.Score,
-                    loserScore = GameManager.Instance.GetPlayerBySide(playerPresenter.Side.Opposite()).Score
+                    loserScore = GameManager.Instance.GetPlayerBySide(playerPresenter.Side.Opposite()).Score,
+                    durationInSeconds = SessionTimer
                 };
-                GameManager.Instance.EndGameSession(results);
+    
+                EndGameSession_Rpc(results);
             }
         }
         
