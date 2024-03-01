@@ -1,4 +1,4 @@
-namespace PhotoPong.Managers
+namespace PhotoPong.Models
 {
     public static class Utils
     {

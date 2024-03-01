@@ -1,20 +1,27 @@
-﻿using System;
-using System.Dynamic;
-using Fusion;
+﻿using PhotoPong.Managers;
 using PhotoPong.Models;
 using UnityEngine;
+using Fusion;
 
 namespace PhotoPong.Presenters
 {
-    public class NetworkPadPresenter : NetworkBehaviour
+    public class PaddlePresenter : NetworkBehaviour
     {
+        public WorldDirection side;
+        
         private Rigidbody2D _rb;
+        private readonly Vector3 _up = Vector2.up * SpeedModifier;
+        private readonly Vector3 _down = Vector2.up * SpeedModifier;
         private const float SpeedModifier = .2f;
-        private Vector3 _up = Vector2.up * SpeedModifier;
-        private Vector3 _down = Vector2.up * SpeedModifier;
+        
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
+        }
+
+        public override void Spawned()
+        {
+            Debug.Log($"Paddle {side} Spawned");
         }
 
         public override void FixedUpdateNetwork()

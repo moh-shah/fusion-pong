@@ -1,5 +1,5 @@
-﻿using System;
-using PhotoPong.Managers;
+﻿using PhotoPong.Managers;
+using PhotoPong.Models;
 using UnityEngine;
 
 namespace PhotoPong.Presenters
@@ -10,10 +10,9 @@ namespace PhotoPong.Presenters
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Debug.Log($"trigger entered: {other.name}");
-            if (other.TryGetComponent(out NetworkBallPresenter ballPresenter))
+            if (other.TryGetComponent(out NetworkBallPresenter _))
             {
-                PongNetworkManager.Instance.GoalScoredOnSide(side);
+                GameManager.Instance.Session.GoalDetectedOnSide(side);
             }
         }
     }
